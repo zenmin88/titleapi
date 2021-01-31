@@ -130,3 +130,19 @@ AUTH_USER_MODEL = 'api_board.CustomUser'
 # TODO: set real settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'example@gmail.com'
+
+# RestFrameWork settings
+REST_FRAMEWORK = {
+    # Simple Jwt auth
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+
+    # Permission
+    # TODO: удалить после настройки прав на все классы
+    'DEFAULT_PERMISSION_CLASSES': [
+            'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        ]
+
+}
+
