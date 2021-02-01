@@ -3,16 +3,19 @@ from random import randint
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework import viewsets, filters, status, permissions, mixins
+from django.db.models import Q
+from django_filters import rest_framework as filters
+from rest_framework import viewsets, status, permissions, mixins
 from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Category, Genre
+from api_board.serializers import CreateUserSerializer, UserSerializer, CategorySerializer, GenreSerializer, \
+    TitleSerializer
+from .models import Category, Genre, Title
 from .permissions import IsAdminRole
-
-from api_board.serializers import CreateUserSerializer, UserSerializer, CategorySerializer, GenreSerializer
 
 User = get_user_model()
 
@@ -94,7 +97,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAdminRole]
     lookup_field = 'username'
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [SearchFilter]
     search_fields = ['username']
 
     @action(detail=False,  permission_classes=[permissions.IsAuthenticated],
@@ -129,6 +132,8 @@ class CategoryGenreMixin(mixins.CreateModelMixin,
     """
     # TODO: Разобраться в необходимости слага. Можно сделать его авто генерируемым.
     lookup_field = 'slug'
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
 
     def get_permissions(self):
         if self.request.method in ['POST', 'DELETE']:
@@ -153,3 +158,53 @@ class GenreViewSet(CategoryGenreMixin):
     """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+
+
+class TitleFilter(filters.FilterSet):
+    """
+    Filter for Title model
+    """
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    genre = filters.CharFilter(field_name='genre__slug', label='genre')
+    slug = filters.CharFilter(field_name='category__slug', label='category')
+
+    class Meta:
+        model = Title
+        fields = ['year']
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = TitleFilter
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        else:
+            return [IsAdminRole()]
+
+    # def get_queryset(self):
+    #     """
+    #     Filter query set wit Q objects
+    #     """
+    #     # TODO: DEL
+    #     queryset = Title.objects.all()
+    #     filter_dict = {
+    #         'name': lambda x: Q(name__icontains=x),
+    #         'year': lambda x: Q(year__exact=x),
+    #         'genre': lambda x: Q(genre__slug__exact=x),
+    #         'category': lambda x: Q(category__slug__exact=x)
+    #     }
+    #
+    #     for key, value in self.request.query_params.items():
+    #         custom_filter = filter_dict.get(key)
+    #         if custom_filter:
+    #             queryset = queryset.filter(custom_filter(value))
+    #     return queryset
+
+
+
+
+
