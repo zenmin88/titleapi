@@ -127,7 +127,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Custom user model
-AUTH_USER_MODEL = 'api_board.CustomUser'
+AUTH_USER_MODEL = 'api_board.User'
 
 # Email settings
 # TODO: set real settings

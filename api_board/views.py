@@ -3,14 +3,16 @@ from random import randint
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework import viewsets, filters, status, permissions
+from rest_framework import viewsets, filters, status, permissions, mixins
 from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import Category, Genre
 from .permissions import IsAdminRole
 
-from api_board.serializers import CreateUserSerializer, UserSerializer
+from api_board.serializers import CreateUserSerializer, UserSerializer, CategorySerializer, GenreSerializer
 
 User = get_user_model()
 
@@ -84,8 +86,9 @@ def get_token(request):
 
 class UserViewSet(viewsets.ModelViewSet):
     """
-    Display information about users, only for admin, route users/
-    Display information for current_user, route users/me
+    API endpoint(user/) that allow only admin get,post,patch and delete data.
+    API endpoint(me/) that allow only request.user get and post data.
+    User cannot change role attribute.
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -115,3 +118,38 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return Response(data=serializer.data,
                         status=status.HTTP_200_OK)
+
+
+class CategoryGenreMixin(mixins.CreateModelMixin,
+                         mixins.ListModelMixin,
+                         mixins.DestroyModelMixin,
+                         viewsets.GenericViewSet):
+    """
+    Mixin for category and genre
+    """
+    # TODO: Разобраться в необходимости слага. Можно сделать его авто генерируемым.
+    lookup_field = 'slug'
+
+    def get_permissions(self):
+        if self.request.method in ['POST', 'DELETE']:
+            return [IsAdminRole()]
+        return [permissions.AllowAny()]
+
+
+class CategoryViewSet(CategoryGenreMixin):
+    """
+    API endpoint that allows all users to be viewed,
+    only admin can edit and delete.
+    """
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GenreViewSet(CategoryGenreMixin):
+    """
+    API endpoint that allows all users to be viewed,
+    only admin can edit and delete.
+    """
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer

@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import exceptions
 from rest_framework import serializers, status
 
+from api_board.models import Category, Genre
+
 User = get_user_model()
 
 
@@ -30,3 +32,15 @@ class UserSerializer(serializers.ModelSerializer):
 
                                               code=status.HTTP_403_FORBIDDEN)
         return super().update(instance, validated_data)
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['name', 'slug']
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['name', 'slug']
