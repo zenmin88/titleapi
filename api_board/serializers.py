@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import exceptions
 from rest_framework import serializers, status
 
-from api_board.models import Category, Genre, Title
+from api_board.models import Category, Genre, Title, Review
 
 User = get_user_model()
 
@@ -59,3 +59,16 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = ['name', 'year', 'genre', 'category']
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(many=False,
+                                          read_only=True,
+                                          slug_field='username')
+    title = serializers.SlugRelatedField(many=False,
+                                         read_only=True,
+                                         slug_field='name')
+
+    class Meta:
+        model = Review
+        fields = '__all__'

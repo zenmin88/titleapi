@@ -99,10 +99,14 @@ class Review(models.Model):
     text = models.TextField()
     score = models.SmallIntegerField(validators=[MaxValueValidator(10),
                                                  MinValueValidator(0)])
+    pub_date = models.DateTimeField('date published', auto_now_add=True)
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='reviews')
-    pub_date = models.DateTimeField('date published', auto_now_add=True)
+    title = models.ForeignKey(Title,
+                              on_delete=models.CASCADE,
+                              related_name='reviews',
+                              default=1)
 
     def __str__(self):
         return self.text

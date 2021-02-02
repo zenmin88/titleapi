@@ -3,19 +3,19 @@ from random import randint
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.db.models import Q
 from django_filters import rest_framework as filters
 from rest_framework import viewsets, status, permissions, mixins
 from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api_board.serializers import CreateUserSerializer, UserSerializer, CategorySerializer, GenreSerializer, \
-    TitleSerializer
+    TitleSerializer, ReviewSerializer
 from .models import Category, Genre, Title
-from .permissions import IsAdminRole
+from .permissions import IsAdminRole, IsAdminOrModeratorOrAuthor
 
 User = get_user_model()
 
@@ -136,9 +136,11 @@ class CategoryGenreMixin(mixins.CreateModelMixin,
     search_fields = ['name']
 
     def get_permissions(self):
-        if self.request.method in ['POST', 'DELETE']:
-            return [IsAdminRole()]
-        return [permissions.AllowAny()]
+        if self.action == 'list':
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [IsAdminRole]
+        return [permission() for permission in permission_classes]
 
 
 class CategoryViewSet(CategoryGenreMixin):
@@ -164,7 +166,7 @@ class TitleFilter(filters.FilterSet):
     """
     Filter for Title model
     """
-    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')  # noqa
     genre = filters.CharFilter(field_name='genre__slug', label='genre')
     slug = filters.CharFilter(field_name='category__slug', label='category')
 
@@ -174,16 +176,21 @@ class TitleFilter(filters.FilterSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """
+    Api endpoint all users can view it,
+    but only admin can create, update and delete it.
+    """
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = [filters.DjangoFilterBackend]
-    filterset_class = TitleFilter
+    filterset_class = TitleFilter  # noqa
 
     def get_permissions(self):
-        if self.request.method == 'GET':
-            return [permissions.AllowAny()]
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
         else:
-            return [IsAdminRole()]
+            permission_classes = [IsAdminRole]
+        return [permission() for permission in permission_classes]
 
     # def get_queryset(self):
     #     """
@@ -205,6 +212,46 @@ class TitleViewSet(viewsets.ModelViewSet):
     #     return queryset
 
 
+@api_view()
+def check_role(request):
+    # TODO: DELETE after production
+    return Response(data={'role': request.user.role,
+                          'username': request.user.username
+                          }
+                    )
 
 
+class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    Api endpoint where users can publishing their review and view it.
+    Admin, moderator and author of review can update and destroy it.
+    """
+    serializer_class = ReviewSerializer
 
+    def get_permissions(self):
+        """
+        Set permission for various methods for various role
+        """
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        elif self.action == 'create':
+            permission_classes = [permissions.IsAuthenticated]
+        elif self.action in ['partial_update', 'destroy']:
+            permission_classes = [IsAdminOrModeratorOrAuthor]
+        else:
+            permission_classes = [IsAdminRole]
+        return [permission() for permission in permission_classes]
+
+    def get_title(self):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        return title
+
+    def get_queryset(self):
+        title = self.get_title()
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        title = self.get_title()
+        serializer.save(author=user, title=title)
