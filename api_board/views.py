@@ -1,33 +1,148 @@
 from datetime import datetime
-from random import randint
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Avg
 from django_filters import rest_framework as filters
-from rest_framework import viewsets, status, permissions, mixins
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api_board.serializers import CreateUserSerializer, UserSerializer, CategorySerializer, GenreSerializer, \
-    TitleSerializer, ReviewSerializer
-from .models import Category, Genre, Title
-from .permissions import IsAdminRole, IsAdminOrModeratorOrAuthor
+    TitleSerializerGet, ReviewSerializer, CommentSerializer, TitleSerializerPost
+from .filters import TitleFilter
+from .functions import generate_username
+from .mixins import ReviewCommentMixin, CategoryGenreMixin
+from .models import Category, Genre, Title, Review, Comment
+from .permissions import IsAdminRole
 
 User = get_user_model()
 
 
-def generate_username(email):
+class UserViewSet(viewsets.ModelViewSet):
     """
-    Generate unique username from email
+    API endpoint(user/) that allow only admin get,post,patch and delete data.
+    API endpoint(me/) that allow only request.user get and post data.
+    User cannot change role attribute.
     """
-    username = email.split('@')[0]
-    while User.objects.filter(username=username).exists():
-        username += str(randint(0, 9))
-    return username
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminRole]
+    lookup_field = 'username'
+    filter_backends = [SearchFilter]
+    search_fields = ['username']
+
+    @action(detail=False,  permission_classes=[permissions.IsAuthenticated],
+            methods=['GET', 'PATCH'], url_path='me', url_name='me')
+    def current_user(self, request):
+        """
+        Get current user info.
+        Update current user info.
+        """
+        serializer_class = self.get_serializer_class()
+
+        if request.method == 'GET':
+            serializer = serializer_class(request.user)
+        else:
+            serializer = serializer_class(instance=request.user,
+                                          data=self.request.data,
+                                          partial=True,
+                                          context={'request': request})
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+
+        return Response(data=serializer.data,
+                        status=status.HTTP_200_OK)
+
+
+class CategoryViewSet(CategoryGenreMixin):
+    """
+    API endpoint that allows all users to be viewed,
+    only admin can edit and delete.
+    """
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GenreViewSet(CategoryGenreMixin):
+    """
+    API endpoint that allows all users to be viewed,
+    only admin can edit and delete.
+    """
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """
+    Api endpoint all users can view it,
+    but only admin can create, update and delete it.
+    """
+    queryset = Title.objects.all()
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = TitleFilter
+
+    def get_serializer(self, *args, **kwargs):
+        if self.action in ['list', 'retrieve']:
+            serializer_class = TitleSerializerGet
+        else:
+            serializer_class = TitleSerializerPost
+        return serializer_class(*args, **kwargs)
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [IsAdminRole]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        """
+        Added annotation field with average rating
+        """
+        queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
+        return queryset
+
+    # def get_queryset(self):
+    #     """
+    #     Filter query set wit Q objects
+    #     """
+    #     # TODO: DEL
+    #     queryset = Title.objects.all()
+    #     filter_dict = {
+    #         'name': lambda x: Q(name__icontains=x),
+    #         'year': lambda x: Q(year__exact=x),
+    #         'genre': lambda x: Q(genre__slug__exact=x),
+    #         'category': lambda x: Q(category__slug__exact=x)
+    #     }
+    #
+    #     for key, value in self.request.query_params.items():
+    #         custom_filter = filter_dict.get(key)
+    #         if custom_filter:
+    #             queryset = queryset.filter(custom_filter(value))
+    #     return queryset.annotate(rating=Avg('reviews__score'))
+
+
+class ReviewViewSet(ReviewCommentMixin):
+    """
+    Api endpoint where users can publishing their review and view it.
+    Admin, moderator and author of review can update and destroy it.
+    """
+    serializer_class = ReviewSerializer
+    model = Review
+    related_model = Title
+    related_field = 'title'
+
+
+class CommentViewSet(ReviewCommentMixin):
+    serializer_class = CommentSerializer
+    model = Comment  # Review
+    related_model = Review  # Title
+    related_field = 'review'  # 'title'
 
 
 @api_view(['POST'])
@@ -43,7 +158,7 @@ def get_confirmation_code(request):
     except User.DoesNotExist:
         username = request.data.get('username')
         if not username:
-            username = generate_username(email)
+            username = generate_username(User, email)
         data = {
             'username': username,
             'email': email
@@ -85,173 +200,3 @@ def get_token(request):
 
         return Response(data={'confirmation_code': 'Invalid data'},
                         status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint(user/) that allow only admin get,post,patch and delete data.
-    API endpoint(me/) that allow only request.user get and post data.
-    User cannot change role attribute.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAdminRole]
-    lookup_field = 'username'
-    filter_backends = [SearchFilter]
-    search_fields = ['username']
-
-    @action(detail=False,  permission_classes=[permissions.IsAuthenticated],
-            methods=['GET', 'PATCH'], url_path='me', url_name='me')
-    def current_user(self, request):
-        """
-        Get current user info.
-        Update current user info.
-        """
-        serializer_class = self.get_serializer_class()
-
-        if request.method == 'GET':
-            serializer = serializer_class(request.user)
-        else:
-            serializer = serializer_class(instance=request.user,
-                                          data=self.request.data,
-                                          partial=True,
-                                          context={'request': request})
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-
-        return Response(data=serializer.data,
-                        status=status.HTTP_200_OK)
-
-
-class CategoryGenreMixin(mixins.CreateModelMixin,
-                         mixins.ListModelMixin,
-                         mixins.DestroyModelMixin,
-                         viewsets.GenericViewSet):
-    """
-    Mixin for category and genre
-    """
-    # TODO: Разобраться в необходимости слага. Можно сделать его авто генерируемым.
-    lookup_field = 'slug'
-    filter_backends = [SearchFilter]
-    search_fields = ['name']
-
-    def get_permissions(self):
-        if self.action == 'list':
-            permission_classes = [permissions.AllowAny]
-        else:
-            permission_classes = [IsAdminRole]
-        return [permission() for permission in permission_classes]
-
-
-class CategoryViewSet(CategoryGenreMixin):
-    """
-    API endpoint that allows all users to be viewed,
-    only admin can edit and delete.
-    """
-
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
-
-class GenreViewSet(CategoryGenreMixin):
-    """
-    API endpoint that allows all users to be viewed,
-    only admin can edit and delete.
-    """
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-
-
-class TitleFilter(filters.FilterSet):
-    """
-    Filter for Title model
-    """
-    name = filters.CharFilter(field_name='name', lookup_expr='icontains')  # noqa
-    genre = filters.CharFilter(field_name='genre__slug', label='genre')
-    slug = filters.CharFilter(field_name='category__slug', label='category')
-
-    class Meta:
-        model = Title
-        fields = ['year']
-
-
-class TitleViewSet(viewsets.ModelViewSet):
-    """
-    Api endpoint all users can view it,
-    but only admin can create, update and delete it.
-    """
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-    filter_backends = [filters.DjangoFilterBackend]
-    filterset_class = TitleFilter  # noqa
-
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            permission_classes = [permissions.AllowAny]
-        else:
-            permission_classes = [IsAdminRole]
-        return [permission() for permission in permission_classes]
-
-    # def get_queryset(self):
-    #     """
-    #     Filter query set wit Q objects
-    #     """
-    #     # TODO: DEL
-    #     queryset = Title.objects.all()
-    #     filter_dict = {
-    #         'name': lambda x: Q(name__icontains=x),
-    #         'year': lambda x: Q(year__exact=x),
-    #         'genre': lambda x: Q(genre__slug__exact=x),
-    #         'category': lambda x: Q(category__slug__exact=x)
-    #     }
-    #
-    #     for key, value in self.request.query_params.items():
-    #         custom_filter = filter_dict.get(key)
-    #         if custom_filter:
-    #             queryset = queryset.filter(custom_filter(value))
-    #     return queryset
-
-
-@api_view()
-def check_role(request):
-    # TODO: DELETE after production
-    return Response(data={'role': request.user.role,
-                          'username': request.user.username
-                          }
-                    )
-
-
-class ReviewViewSet(viewsets.ModelViewSet):
-    """
-    Api endpoint where users can publishing their review and view it.
-    Admin, moderator and author of review can update and destroy it.
-    """
-    serializer_class = ReviewSerializer
-
-    def get_permissions(self):
-        """
-        Set permission for various methods for various role
-        """
-        if self.action in ['list', 'retrieve']:
-            permission_classes = [permissions.AllowAny]
-        elif self.action == 'create':
-            permission_classes = [permissions.IsAuthenticated]
-        elif self.action in ['partial_update', 'destroy']:
-            permission_classes = [IsAdminOrModeratorOrAuthor]
-        else:
-            permission_classes = [IsAdminRole]
-        return [permission() for permission in permission_classes]
-
-    def get_title(self):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        return title
-
-    def get_queryset(self):
-        title = self.get_title()
-        return title.reviews.all()
-
-    def perform_create(self, serializer):
-        user = self.request.user
-        title = self.get_title()
-        serializer.save(author=user, title=title)

@@ -9,8 +9,12 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import os
 from datetime import timedelta
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'lr89njj_l$q2$ip^1^24$b8uin1ar5x#qcn@i(jj8e25bh-ea0'
+SECRET_KEY = os.getenv("DJANGO_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -61,8 +65,7 @@ ROOT_URLCONF = 'feedback_board.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -126,6 +129,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+# TODO: From Path
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 
 # Custom user model
 AUTH_USER_MODEL = 'api_board.User'
@@ -140,13 +145,9 @@ REST_FRAMEWORK = {
     # Simple Jwt auth
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',  # noqa
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
-
-    # Permission
-    # TODO: удалить после настройки прав на все классы
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    #     ],
 
     # Pagination
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

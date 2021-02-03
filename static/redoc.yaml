@@ -1,0 +1,1062 @@
+swagger: '2.0'
+info:
+  title: Titles API
+  description: Test description
+  termsOfService: 'https://www.google.com/policies/terms/'
+  contact:
+    email: contact@snippets.local
+  license:
+    name: BSD License
+  version: v1
+host: '127.0.0.1:5000'
+schemes:
+  - http
+basePath: /api/v1
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  'Auth Token eg [Bearer (JWT)]':
+    type: apiKey
+    name: Authorization
+    in: header
+security:
+  - 'Auth Token eg [Bearer (JWT)]': []
+paths:
+  /auth/email/:
+    post:
+      operationId: Get confirmation code
+      description: >-
+        Register new user and sent confirmation_code.
+
+        For existing user sent confirmation_code.<br>Access: <strong>Available
+        without token<strong>.
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateUser'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/CreateUser'
+      tags:
+        - AUTH
+    parameters: []
+  /auth/token/:
+    post:
+      operationId: Get token
+      description: >-
+        Receiving JWT token in exchange for email and
+        confirmation_code<br>Access: <strong>Available without token<strong>.
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            required:
+              - username
+              - confirmation_code
+            type: object
+            properties:
+              username:
+                type: string
+              confirmation_code:
+                type: string
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/Token'
+        '400':
+          description: Bad request
+      tags:
+        - AUTH
+    parameters: []
+  /categories/:
+    get:
+      operationId: Get a lif if categories
+      description: >-
+        Get a list of all categories.<br>Access: <strong>Available without
+        token<strong>.
+      parameters:
+        - name: search
+          in: query
+          description: filters by category name
+          type: string
+        - name: page
+          in: query
+          description: A page number within the paginated result set.
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: ''
+          schema:
+            required:
+              - count
+              - results
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: string
+                format: uri
+                x-nullable: true
+              previous:
+                type: string
+                format: uri
+                x-nullable: true
+              results:
+                type: array
+                items:
+                  $ref: '#/definitions/Category'
+      tags:
+        - CATEGORIES
+    post:
+      operationId: Create category
+      description: 'Create a category.<br>Access: <strong>Administrator<strong>.'
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Category'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/Category'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      tags:
+        - CATEGORIES
+    parameters: []
+  '/categories/{slug}/':
+    delete:
+      operationId: DeleteCategory
+      description: 'Delete a category.<br>Access: <strong>Administrator<strong>.'
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - CATEGORIES
+    parameters:
+      - name: slug
+        in: path
+        required: true
+        type: string
+        format: slug
+        pattern: '^[-a-zA-Z0-9_]+$'
+  /genres/:
+    get:
+      operationId: Get a list of genres
+      description: >-
+        Get a list of all genres.<br>Access: <strong>Available without
+        token<strong>.
+      parameters:
+        - name: search
+          in: query
+          description: filters by genre name
+          type: string
+        - name: page
+          in: query
+          description: A page number within the paginated result set.
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: ''
+          schema:
+            required:
+              - count
+              - results
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: string
+                format: uri
+                x-nullable: true
+              previous:
+                type: string
+                format: uri
+                x-nullable: true
+              results:
+                type: array
+                items:
+                  $ref: '#/definitions/Genre'
+      tags:
+        - GENRES
+    post:
+      operationId: Create genre
+      description: 'Create a genre.<br>Access: <strong>Administrator<strong>.'
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Genre'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/Genre'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      tags:
+        - GENRES
+    parameters: []
+  '/genres/{slug}/':
+    delete:
+      operationId: Delete genre
+      description: 'Delete a genre.<br>Access: <strong>Administrator<strong>.'
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - GENRES
+    parameters:
+      - name: slug
+        in: path
+        required: true
+        type: string
+        format: slug
+        pattern: '^[-a-zA-Z0-9_]+$'
+  /titles/:
+    get:
+      operationId: Get a list of titles
+      description: >-
+        Get a list of all objects.<br>Access: <strong>Available without
+        token<strong>.
+      parameters:
+        - name: year
+          in: query
+          description: Filter the returned list by year
+          required: false
+          type: number
+        - name: name
+          in: query
+          description: Filter the returned list by name of title
+          required: false
+          type: string
+        - name: genre
+          in: query
+          description: Filter the returned list by slug genre
+          required: false
+          type: string
+        - name: category
+          in: query
+          description: Filter the returned list by slug category
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: A page number within the paginated result set.
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: ''
+          schema:
+            required:
+              - count
+              - results
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: string
+                format: uri
+                x-nullable: true
+              previous:
+                type: string
+                format: uri
+                x-nullable: true
+              results:
+                type: array
+                items:
+                  $ref: '#/definitions/TitleSerializerGet'
+      tags:
+        - TITLES
+    post:
+      operationId: Create title
+      description: 'Create a object for review.<br>Access: <strong>Administrator<strong>.'
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TitleSerializerPost'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/TitleSerializerPost'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+      tags:
+        - TITLES
+    parameters: []
+  '/titles/{id}/':
+    get:
+      operationId: Get title
+      description: >-
+        Get information about object.<br>Access: <strong>Available without
+        token<strong>.
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/TitleSerializerGet'
+        '404':
+          description: Not found
+      tags:
+        - TITLES
+    patch:
+      operationId: Update title
+      description: 'Update object information.<br>Access: <strong>Administrator<strong>.'
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TitleSerializerPost'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/TitleSerializerPost'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - TITLES
+    delete:
+      operationId: Delete title
+      description: 'Delete object.<br>Access: <strong>Administrator<strong>.'
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - TITLES
+    parameters:
+      - name: id
+        in: path
+        description: A unique integer value identifying this title.
+        required: true
+        type: integer
+  '/titles/{title_id}/reviews/':
+    get:
+      operationId: Get a list of reviews
+      description: >-
+        Get a list of all reviews.<br>Access: <strong>Available without
+        token<strong>.
+      parameters:
+        - name: page
+          in: query
+          description: A page number within the paginated result set.
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: ''
+          schema:
+            required:
+              - count
+              - results
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: string
+                format: uri
+                x-nullable: true
+              previous:
+                type: string
+                format: uri
+                x-nullable: true
+              results:
+                type: array
+                items:
+                  $ref: '#/definitions/Review'
+        '404':
+          description: Not found
+      tags:
+        - REVIEWS
+    post:
+      operationId: Create review
+      description: >-
+        Create a new review. The user can create only one review for one
+        title.<br>Access: <strong>Authenticated users<strong>.
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Review'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/Review'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+      tags:
+        - REVIEWS
+    parameters:
+      - name: title_id
+        in: path
+        required: true
+        type: string
+  '/titles/{title_id}/reviews/{id}/':
+    get:
+      operationId: Get review by id
+      description: 'Get review by id.<br>Access: <strong>Available without token<strong>.'
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Review'
+        '404':
+          description: Not found
+      tags:
+        - REVIEWS
+    patch:
+      operationId: Update review
+      description: >-
+        Update review by id.<br>Access: <strong>Author of review, moderator or
+        administrator<strong>.
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Review'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Review'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - REVIEWS
+    delete:
+      operationId: Delete review
+      description: >-
+        Delete review by id.<br>Access: <strong>Author of review, moderator or
+        administrator<strong>.
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - REVIEWS
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+      - name: title_id
+        in: path
+        required: true
+        type: string
+  '/titles/{title_id}/reviews/{review_id}/comments/':
+    get:
+      operationId: Get a list of comments
+      description: >-
+        Get a list of all comments for a review by id.<br>Access:
+        <strong>Available without token<strong>.
+      parameters:
+        - name: page
+          in: query
+          description: A page number within the paginated result set.
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: ''
+          schema:
+            required:
+              - count
+              - results
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: string
+                format: uri
+                x-nullable: true
+              previous:
+                type: string
+                format: uri
+                x-nullable: true
+              results:
+                type: array
+                items:
+                  $ref: '#/definitions/Comment'
+        '404':
+          description: Not found
+      tags:
+        - COMMENTS
+    post:
+      operationId: Create comment
+      description: >-
+        Create a new comment for review.<br>Access: <strong>Authenticated
+        users<strong>.
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Comment'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/Comment'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+      tags:
+        - COMMENTS
+    parameters:
+      - name: review_id
+        in: path
+        required: true
+        type: string
+      - name: title_id
+        in: path
+        required: true
+        type: string
+  '/titles/{title_id}/reviews/{review_id}/comments/{id}/':
+    get:
+      operationId: Get comment by id
+      description: >-
+        Get a comment for a review by id..<br>Access: <strong>Available without
+        token<strong>.
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Comment'
+        '404':
+          description: Not found
+      tags:
+        - COMMENTS
+    patch:
+      operationId: Update comment
+      description: >-
+        Update comment for a review by id.<br>Access: <strong>Author of comment,
+        moderator or administrator<strong>.
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Comment'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Comment'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - COMMENTS
+    delete:
+      operationId: Delete comment
+      description: >-
+        Delete comment for a review by id.<br>Access: <strong>Author of comment,
+        moderator or administrator<strong>.
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - COMMENTS
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+      - name: review_id
+        in: path
+        required: true
+        type: string
+      - name: title_id
+        in: path
+        required: true
+        type: string
+  /users/:
+    get:
+      operationId: Get a list of users
+      description: 'Get a list of all users.<br>Access: <strong>Administrator<strong>.'
+      parameters:
+        - name: search
+          in: query
+          description: 'username to filter, search by username part'
+          type: string
+        - name: page
+          in: query
+          description: A page number within the paginated result set.
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        '401':
+          description: Unauthorized
+      tags:
+        - USERS
+    post:
+      operationId: Create user
+      description: 'Create a user.<br>Access: <strong>Administrator<strong>.'
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      tags:
+        - USERS
+    parameters: []
+  /users/me/:
+    get:
+      operationId: Get your account details
+      description: >-
+        Get your account details.<br>Access: <strong>Any authorized
+        user</strong>.
+      parameters:
+        - name: search
+          in: query
+          description: A search term.
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: A page number within the paginated result set.
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        '401':
+          description: Unauthorized
+      tags:
+        - USERS
+    patch:
+      operationId: Update your account details
+      description: >-
+        Update your account details.<br>Access: <strong>Any authorized
+        user</strong>.
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Bad request
+        '403':
+          description: Forbidden
+      tags:
+        - USERS
+    parameters: []
+  '/users/{username}/':
+    get:
+      operationId: Get user
+      description: 'Get user by username.<br>Access: <strong>Administrator<strong>.'
+      parameters:
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      tags:
+        - USERS
+    patch:
+      operationId: Update user
+      description: 'Change user data by username.<br>Access: <strong>Administrator<strong>.'
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - USERS
+    delete:
+      operationId: Delete User
+      description: 'Delete user by username.<br>Access: <strong>Administrator<strong>.'
+      parameters:
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - USERS
+    parameters:
+      - name: username
+        in: path
+        description: 'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'
+        required: true
+        type: string
+        pattern: '^[\w.@+-]+$'
+definitions:
+  CreateUser:
+    required:
+      - email
+    type: object
+    properties:
+      email:
+        title: Email address
+        type: string
+        format: email
+        maxLength: 255
+        minLength: 1
+      username:
+        title: Username
+        description: 'If username is not specified, it will be generated automatically'
+        type: string
+  Token:
+    required:
+      - token
+    type: object
+    properties:
+      token:
+        title: Token
+        type: string
+        minLength: 1
+  Category:
+    required:
+      - name
+    type: object
+    properties:
+      name:
+        title: Name
+        type: string
+        maxLength: 50
+        minLength: 1
+      slug:
+        title: Slug
+        description: 'If not specified, it will be generated automatically from the name'
+        type: string
+  Genre:
+    required:
+      - name
+    type: object
+    properties:
+      name:
+        title: Name
+        type: string
+        maxLength: 50
+        minLength: 1
+      slug:
+        title: Slug
+        description: 'If not specified, it will be generated automatically from the name'
+        type: string
+  TitleSerializerGet:
+    required:
+      - name
+      - year
+      - genre
+      - category
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      name:
+        title: Name
+        type: string
+        maxLength: 50
+        minLength: 1
+      year:
+        title: Year
+        type: integer
+      rating:
+        title: Rating
+        type: number
+        readOnly: true
+      description:
+        title: Description
+        type: string
+        maxLength: 255
+      genre:
+        type: array
+        items:
+          $ref: '#/definitions/Genre'
+      category:
+        $ref: '#/definitions/Category'
+  TitleSerializerPost:
+    required:
+      - name
+      - year
+      - genre
+      - category
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      name:
+        title: Name
+        type: string
+        maxLength: 50
+        minLength: 1
+      year:
+        title: Year
+        type: integer
+      rating:
+        title: Rating
+        type: number
+        readOnly: true
+      description:
+        title: Description
+        type: string
+        maxLength: 255
+      genre:
+        type: array
+        items:
+          type: string
+          format: slug
+          pattern: '^[-a-zA-Z0-9_]+$'
+        uniqueItems: true
+      category:
+        title: Category
+        type: string
+        format: slug
+        pattern: '^[-a-zA-Z0-9_]+$'
+  Review:
+    required:
+      - text
+      - score
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      author:
+        title: Author
+        type: string
+        pattern: '^[\w.@+-]+$'
+        readOnly: true
+      title:
+        title: Title
+        type: string
+        readOnly: true
+      text:
+        title: Text
+        type: string
+        minLength: 1
+      score:
+        title: Score
+        type: integer
+        maximum: 10
+        minimum: 1
+      pub_date:
+        title: Date published
+        type: string
+        format: date-time
+        readOnly: true
+  Comment:
+    required:
+      - text
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      text:
+        title: Text
+        type: string
+        maxLength: 655
+        minLength: 1
+      author:
+        title: Author
+        type: string
+        pattern: '^[\w.@+-]+$'
+        readOnly: true
+      pub_date:
+        title: Date published
+        type: string
+        format: date-time
+        readOnly: true
+  User:
+    required:
+      - email
+    type: object
+    properties:
+      first_name:
+        title: First name
+        type: string
+        maxLength: 150
+      last_name:
+        title: Last name
+        type: string
+        maxLength: 150
+      username:
+        title: Username
+        description: 'If username is not specified, it will be generated automatically'
+        type: string
+      bio:
+        title: Bio
+        type: string
+        maxLength: 256
+      email:
+        title: Email address
+        type: string
+        format: email
+        maxLength: 255
+        minLength: 1
+      role:
+        title: Role
+        description: 'Administrator, moderator or user. By default ''user'''
+        type: string
+        maxLength: 10
+        minLength: 1
