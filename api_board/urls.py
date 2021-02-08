@@ -12,7 +12,7 @@ route.register(r'titles/(?P<title_id>[^/.]+)/reviews/(?P<review_id>[^/.]+)/comme
                views.CommentViewSet, basename='comment')
 
 urlpatterns = [
-    path('auth/email/', views.get_confirmation_code),
-    path('auth/token/', views.get_token),
+    path('auth/email/', views.get_confirmation_code, name='get-confirmation_code'),
+    path('auth/token/', views.get_token, name='get-token'),
     path('', include(route.urls))
 ]

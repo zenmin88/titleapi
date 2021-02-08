@@ -37,6 +37,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField(required=False)
+
     class Meta:
         model = Category
         fields = ['name', 'slug']
@@ -48,6 +50,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField(required=False)
+
     class Meta:
         model = Genre
         fields = ['name', 'slug']
