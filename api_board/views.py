@@ -34,6 +34,7 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     filter_backends = [SearchFilter]
     search_fields = ['username']
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     @action(detail=False,  permission_classes=[permissions.IsAuthenticated],
             methods=['GET', 'PATCH'], url_path='me', url_name='me')
@@ -82,9 +83,10 @@ class TitleViewSet(viewsets.ModelViewSet):
     Api endpoint all users can view it,
     but only admin can create, update and delete it.
     """
-    queryset = Title.objects.all()
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = TitleFilter
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
 
     def get_serializer(self, *args, **kwargs):
         if self.action in ['list', 'retrieve']:
@@ -104,7 +106,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         """
         Added annotation field with average rating
         """
-        queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
+        queryset = Title.objects.all().annotate(rating=Avg('reviews__score')).order_by('id')
         return queryset
 
     # def get_queryset(self):

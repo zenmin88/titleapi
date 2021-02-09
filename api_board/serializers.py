@@ -75,7 +75,6 @@ class TitleSerializerGet(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = ['id', 'name', 'year', 'rating', 'description', 'genre', 'category']
-        ordering = ['id']
 
 
 class TitleSerializerPost(TitleSerializerGet):
@@ -87,6 +86,10 @@ class TitleSerializerPost(TitleSerializerGet):
                                          slug_field='slug',
                                          many=True,
                                          )
+
+    class Meta:
+        model = Title
+        fields = ['id', 'name', 'year', 'description', 'genre', 'category']
 
 
 class ReviewSerializer(serializers.ModelSerializer):

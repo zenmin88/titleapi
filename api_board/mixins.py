@@ -11,6 +11,7 @@ class ReviewCommentMixin(viewsets.ModelViewSet):
     Mixin with permissions where users can publishing their review and view it.
     Admin, moderator and author of review can update and destroy it.
     """
+    http_method_names = ['get', 'post', 'patch', 'delete']
     serializer_class = None
     model = None
     related_model = None
@@ -62,6 +63,7 @@ class CategoryGenreMixin(mixins.CreateModelMixin,
     lookup_field = 'slug'
     filter_backends = [SearchFilter]
     search_fields = ['name']
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_permissions(self):
         if self.action == 'list':

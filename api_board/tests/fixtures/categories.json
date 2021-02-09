@@ -1,0 +1,18 @@
+[
+{
+    "model": "api_board.category",
+    "pk": 1,
+    "fields": {
+        "name": "Film",
+        "slug": "film"
+    }
+},
+{
+    "model": "api_board.category",
+    "pk": 2,
+    "fields": {
+        "name": "Book",
+        "slug": "book"
+    }
+}
+]

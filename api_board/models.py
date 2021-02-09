@@ -69,7 +69,8 @@ class Category(models.Model):
     slug = models.SlugField(unique=True)
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('id',)
+        verbose_name_plural = _('categories')
 
     def __str__(self):
         return self.name
@@ -88,7 +89,7 @@ class Title(models.Model):
     genre = models.ManyToManyField('Genre', related_name='genres')
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('id',)
 
     def __str__(self):
         return self.name

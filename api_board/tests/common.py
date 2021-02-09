@@ -1,20 +1,6 @@
 from django.contrib.auth import get_user_model
-from rest_framework.reverse import reverse
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.test import APIClient
-
-
-from api_board.models import Genre
-
-
-def create_genres(*genres):
-    for genre in genres:
-        Genre.objects.create(**genre)
-
-def get_genre_detail_url(data):
-    genre = Genre.objects.create(**data)
-    url = reverse('genre-detail', kwargs={'slug': genre.slug})
-    return url
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 def create_client_for_user(role='user'):

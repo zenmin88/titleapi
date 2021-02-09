@@ -1,0 +1,26 @@
+[
+{
+    "model": "api_board.genre",
+    "pk": 1,
+    "fields": {
+        "name": "Comedy",
+        "slug": "comedy"
+    }
+},
+{
+    "model": "api_board.genre",
+    "pk": 2,
+    "fields": {
+        "name": "Historical",
+        "slug": "historical"
+    }
+},
+{
+    "model": "api_board.genre",
+    "pk": 3,
+    "fields": {
+        "name": "Family",
+        "slug": "family"
+    }
+}
+]

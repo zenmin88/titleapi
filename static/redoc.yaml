@@ -950,10 +950,6 @@ definitions:
       year:
         title: Year
         type: integer
-      rating:
-        title: Rating
-        type: number
-        readOnly: true
       description:
         title: Description
         type: string
