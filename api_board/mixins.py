@@ -11,7 +11,6 @@ class ReviewCommentMixin(viewsets.ModelViewSet):
     Mixin with permissions where users can publishing their review and view it.
     Admin, moderator and author of review can update and destroy it.
     """
-    http_method_names = ['get', 'post', 'patch', 'delete']
     serializer_class = None
     model = None
     related_model = None

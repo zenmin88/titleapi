@@ -12,13 +12,11 @@ from api_board.tests.common import create_client_for_user
 
 @override_settings(FIXTURE_DIRS=[Path(__file__).resolve().parent/'fixtures', ])
 class TestTitle(TestCase):
-    fixtures = ['genres', 'categories', 'titles']
+    fixtures = ['genres', 'categories', 'titles', 'users']
 
     @classmethod
     def setUpTestData(cls):
-        cls.admin_client = create_client_for_user(role='admin')
-        cls.moderator_client = create_client_for_user(role='moderator')
-        cls.user_client = create_client_for_user(role='user')
+        cls.user_client, cls.moderator_client, cls.admin_client = create_client_for_user()
         cls.not_auth_client = APIClient()
 
         cls.list_url = reverse('title-list')

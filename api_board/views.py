@@ -87,7 +87,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-
     def get_serializer(self, *args, **kwargs):
         if self.action in ['list', 'retrieve']:
             serializer_class = TitleSerializerGet

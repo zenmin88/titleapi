@@ -325,8 +325,6 @@ paths:
           description: Bad request
         '401':
           description: Unauthorized
-        '404':
-          description: Not found
       tags:
         - TITLES
     parameters: []
@@ -685,11 +683,31 @@ paths:
           type: integer
       responses:
         '200':
-          description: OK
+          description: ''
           schema:
-            $ref: '#/definitions/User'
+            required:
+              - count
+              - results
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: string
+                format: uri
+                x-nullable: true
+              previous:
+                type: string
+                format: uri
+                x-nullable: true
+              results:
+                type: array
+                items:
+                  $ref: '#/definitions/User'
         '401':
           description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
         - USERS
     post:
@@ -721,17 +739,6 @@ paths:
       description: >-
         Get your account details.<br>Access: <strong>Any authorized
         user</strong>.
-      parameters:
-        - name: search
-          in: query
-          description: A search term.
-          required: false
-          type: string
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          type: integer
       responses:
         '200':
           description: OK
@@ -779,12 +786,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/User'
-        '400':
-          description: Bad request
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
+        '404':
+          description: Not found
       tags:
         - USERS
     patch:

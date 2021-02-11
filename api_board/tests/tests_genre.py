@@ -12,20 +12,19 @@ from api_board.tests.common import create_client_for_user
 
 @override_settings(FIXTURE_DIRS=[Path(__file__).resolve().parent/'fixtures', ])
 class TestGenreViewSet(TestCase):
-    fixtures = ['genres']
+    fixtures = ['genres', 'users']
+    list_url = reverse('genre-list')
+    data = {"name": "Western",
+            "slug": "western"}
+
+    slug = Genre.objects.first().slug
+    detail_url = reverse('genre-detail', kwargs={'slug': slug})
 
     @classmethod
     def setUpTestData(cls):
-        cls.admin_client = create_client_for_user(role='admin')
-        cls.moderator_client = create_client_for_user(role='moderator')
-        cls.user_client = create_client_for_user(role='user')
+        cls.user_client, cls.moderator_client, cls.admin_client = create_client_for_user()
         cls.not_auth_client = APIClient()
-        cls.list_url = reverse('genre-list')
-        cls.data = {"name": "Western",
-                    "slug": "western"}
 
-        cls.slug = Genre.objects.first().slug
-        cls.detail_url = reverse('genre-detail', kwargs={'slug': cls.slug})
         super().setUpTestData()
 
     def test_get_genre_list_for_not_auth_user(self):
