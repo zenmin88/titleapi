@@ -13,5 +13,4 @@ def create_client_for_user(role='user'):
     user_token = RefreshToken.for_user(user)
     user_client = APIClient()
     user_client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(user_token.access_token))
-
     return user_client

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from api_board.models import Genre, Category, Title
+from api_board.models import Genre, Category, Title, User
 
 
 @admin.register(Genre)
@@ -27,3 +27,13 @@ class TitleAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
     ordering = ('id', 'name', 'year')
 
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    fields = ('username', 'email', 'role', 'first_name', 'last_name', 'bio',
+              ('is_superuser', 'is_staff', 'is_active'), 'user_permissions',
+              'groups', 'last_login')
+
+    list_display = ('id', 'username', 'email', 'role')
+    list_display_links = ('username',)
+    list_filter = ('role', )

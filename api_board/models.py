@@ -1,21 +1,18 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-
-def validate_role(value):
-    # TODO: Проверить правильность создания роли и работы валидатора и необходимость его
-    role = ['user', 'admin', 'moderator']
-    if value not in role and role is not None:
-        raise ValidationError(f'Invalid data, choose from {role}')
 
 
 class User(AbstractUser):
     """
     Custom user model
     """
+    ROLE_CHOICES = (
+        ('user', 'user'),
+        ('moderator', 'moderator'),
+        ('admin', 'admin')
+    )
     # TODO: поправить юзера
     email = models.EmailField(
         _('email address'),
@@ -24,8 +21,8 @@ class User(AbstractUser):
     )
     bio = models.CharField(max_length=256, blank=True)
     role = models.CharField(max_length=10,
-                            default='user',
-                            validators=[validate_role],
+                            choices=ROLE_CHOICES,
+                            default=ROLE_CHOICES[0],
                             help_text="Administrator, moderator or user. By default 'user'")
 
     EMAIL_FIELD = 'email'
