@@ -4,7 +4,7 @@ from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-def create_client_for_user():
+def create_clients_for_users():
     """
     Get user with role(user, admin, moderator) from fixtures,
     generate token for it and create authenticate client
@@ -39,4 +39,13 @@ def get_user_from_client(client):
     valid_token = auth.get_validated_token(token_str)
     user = get_user_model().objects.get(id=valid_token.payload['user_id'])
     return user
+
+
+def create_client_for_user():
+    """Create user with role=user and client for it"""
+    other_user = get_user_model().objects.create(username='other_user', email='mail@mail.com')
+    token = RefreshToken.for_user(other_user)
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(token.access_token))
+    return client
 

@@ -7,7 +7,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from api_board.models import Genre
-from api_board.tests.common import create_client_for_user
+from api_board.tests.common import create_clients_for_users
 
 
 @override_settings(FIXTURE_DIRS=[Path(__file__).resolve().parent/'fixtures', ])
@@ -22,7 +22,7 @@ class TestGenre(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user_client, cls.moderator_client, cls.admin_client = create_client_for_user()
+        cls.user_client, cls.moderator_client, cls.admin_client = create_clients_for_users()
         cls.not_auth_client = APIClient()
 
         super().setUpTestData()

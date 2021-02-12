@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 
 
@@ -129,4 +130,4 @@ class Review(models.Model):
         ordering = ('pub_date',)
 
     def __str__(self):
-        return self.text
+        return Truncator(self.text).chars(120)

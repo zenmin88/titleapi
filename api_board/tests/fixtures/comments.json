@@ -1,0 +1,22 @@
+[
+{
+    "model": "api_board.comment",
+    "pk": 1,
+    "fields": {
+        "text": "It was an amazing movie",
+        "author": 4,
+        "review": 1,
+        "pub_date": "2021-02-12T13:59:08.602Z"
+    }
+},
+{
+    "model": "api_board.comment",
+    "pk": 2,
+    "fields": {
+        "text": "My children were delighted",
+        "author": 2,
+        "review": 1,
+        "pub_date": "2021-02-12T14:11:07.675Z"
+    }
+}
+]

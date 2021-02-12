@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.text import Truncator
 
-from api_board.models import Genre, Category, Title, User, Review
+from api_board.models import Genre, Category, Title, User, Review, Comment
 
 
 @admin.register(Genre)
@@ -53,4 +53,12 @@ class ReviewAdmin(admin.ModelAdmin):
         return Truncator(obj.text).chars(120)
 
 
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'text', 'author', 'pub_date', 'review', 'title')
+    list_display_links = ('text', )
+    ordering = ('author', 'review', 'pub_date')
 
+    @staticmethod
+    def title(obj):
+        return obj.review.title.name

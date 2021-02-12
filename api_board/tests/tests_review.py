@@ -1,14 +1,16 @@
 from pathlib import Path
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from api_board.models import Review, Title
-from api_board.tests.common import create_client_for_user, get_user_from_client
+from api_board.tests.common import (
+    create_clients_for_users,
+    get_user_from_client,
+    create_client_for_user
+)
 
 
 @override_settings(FIXTURE_DIRS=[Path(__file__).resolve().parent/'fixtures', ])
@@ -23,7 +25,7 @@ class TestReview(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user_client, cls.moderator_client, cls.admin_client = create_client_for_user()
+        cls.user_client, cls.moderator_client, cls.admin_client = create_clients_for_users()
         cls.not_auth_client = APIClient()
         super().setUpTestData()
 
@@ -107,7 +109,7 @@ class TestReviewUpdateDelete(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user_client, cls.moderator_client, cls.admin_client = create_client_for_user()
+        cls.user_client, cls.moderator_client, cls.admin_client = create_clients_for_users()
         cls.not_auth_client = APIClient()
         super().setUpTestData()
 
@@ -130,7 +132,7 @@ class TestReviewUpdateDelete(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_review_by_user_not_author(self):
-        client = self.create_user_client()
+        client = create_client_for_user()
         response = client.patch(self.detail_url, data=self.data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -156,18 +158,10 @@ class TestReviewUpdateDelete(TestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_review_by_user_not_author(self):
-        client = self.create_user_client()
-        response = client.patch(self.detail_url, data=self.data)
+        client = create_client_for_user()
+        response = client.delete(self.detail_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_review_by_not_auth_user(self):
-        response = self.not_auth_client.patch(self.detail_url, data=self.data)
+        response = self.not_auth_client.delete(self.detail_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    @staticmethod
-    def create_user_client():
-        other_user = get_user_model().objects.create(username='other_user', email='mail@mail.com')
-        token = RefreshToken.for_user(other_user)
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(token.access_token))
-        return client
