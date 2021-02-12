@@ -1,0 +1,24 @@
+[
+{
+    "model": "api_board.review",
+    "pk": 1,
+    "fields": {
+        "text": "\"Home Alone\" is a splendid movie title because it evokes all sorts of scary nostalgia. Being left home alone, when you were a kid, meant hearing strange noises and being afraid to look in the basement - but it also meant doing all the things that grownups would tell you to stop doing, if they were there. Things like staying up to watch Johnny Carson, eating all the ice cream, and sleeping in your parents' bed.",
+        "score": 9,
+        "pub_date": "2021-02-11T15:13:25.636Z",
+        "author": 4,
+        "title": 1
+    }
+},
+{
+    "model": "api_board.review",
+    "pk": 2,
+    "fields": {
+        "text": "Directed by Chris Columbus, Home Alone follows Macaulay Culkin’s Kevin McCallister as he’s forced to fend for himself after his extended family accidentally travels to Paris without him – with the narrative eventually detailing Kevin’s efforts at defending his family’s home from a pair of bumbling criminals (Joe Pesci’s Harry and Daniel Stern’s Marv). The degree to which Home Alone‘s various components work, and work exceedingly well, is generally nothing short of astonishing, as the movie, written by John Hughes, generally feels as though it could (and should) boast few attributes designed to appeal to older viewers – and yet filmmaker Columbus continually does a superb job of populating the proceedings with engaging, ingratiating elements that cumulatively transform the picture into a consistently compelling and entertaining endeavor. It’s clear, certainly, that the movie benefits quite substantially from its myriad of affable, agreeable performances, with Culkin’s justifiably iconic efforts here matched by an eclectic supporting cast that features, among others, Catherine O’Hara, John Heard, and, in an extended (and very welcome) cameo, John Candy – although Pesci and Stern’s often hilarious work remains an obvious highlight (and their characters’ climactic attempts at besting Culkin’s crafty protagonist are as laugh-out-loud funny as one might’ve hoped). The inclusion of several heartwarming plot threads, especially Kevin’s growing friendship with a lonely old neighbor (Roberts Blossom’s Marley), ultimately cements Home Alone‘s place as a bona fide classic of the holiday-movie genre, and it’s certainly not difficult to see why Culkin was launched into superstardom in the wake of the movie’s 1990 release.",
+        "score": 10,
+        "pub_date": "2021-02-11T15:31:49.503Z",
+        "author": 2,
+        "title": 1
+    }
+}
+]

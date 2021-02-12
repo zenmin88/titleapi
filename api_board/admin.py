@@ -1,6 +1,7 @@
 from django.contrib import admin
+from django.utils.text import Truncator
 
-from api_board.models import Genre, Category, Title, User
+from api_board.models import Genre, Category, Title, User, Review
 
 
 @admin.register(Genre)
@@ -37,3 +38,19 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'email', 'role')
     list_display_links = ('username',)
     list_filter = ('role', )
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('id', 'truncated_text', 'score', 'author', 'pub_date', 'title')
+    list_display_links = ('truncated_text',)
+    ordering = ('id', 'pub_date')
+    list_filter = ('score', )
+    search_fields = ('text', )
+
+    @staticmethod
+    def truncated_text(obj):
+        return Truncator(obj.text).chars(120)
+
+
+

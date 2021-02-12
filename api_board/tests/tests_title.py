@@ -1,18 +1,21 @@
 from pathlib import Path
 
 from django.core import exceptions
+from django.db.models import Avg
 from django.test import TestCase, override_settings
 from rest_framework import status
+from rest_framework.renderers import JSONRenderer
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from api_board.models import Title, Category, Genre
+from api_board.serializers import GenreSerializer
 from api_board.tests.common import create_client_for_user
 
 
 @override_settings(FIXTURE_DIRS=[Path(__file__).resolve().parent/'fixtures', ])
 class TestTitle(TestCase):
-    fixtures = ['genres', 'categories', 'titles', 'users']
+    fixtures = ['genres', 'categories', 'titles', 'users', 'reviews']
 
     @classmethod
     def setUpTestData(cls):
@@ -91,11 +94,6 @@ class TestTitle(TestCase):
         response = self.admin_client.post(self.list_url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        # Required field
-        required_fields = ('name', 'year', 'category')
-        for required_field in required_fields:
-            self.assertIn(required_field, response.data)
-
     def test_create_title_by_not_auth_user(self):
         response = self.not_auth_client.post(self.list_url, data=self.data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -169,17 +167,21 @@ class TestTitle(TestCase):
     def test_delete_title_by_admin(self):
         response = self.admin_client.delete(self.detail_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # Title.objects.get(id=self.pk)
         with self.assertRaises(exceptions.ObjectDoesNotExist):
             Title.objects.get(id=self.pk)
 
     def check_response_data(self, data):
-        params = ('category', 'description', 'genre', 'id', 'name', 'rating', 'year')
-        for param in params:
-            self.assertIn(param, data)
-        self.assertIn('name', data['category'])
-        self.assertIn('slug', data['category'])
-        self.assertIn('name', data['genre'][0])
-        self.assertIn('slug', data['genre'][0])
-        self.assertIsInstance(data['category'], dict)
-        self.assertIsInstance(data['genre'], list)
+        title = Title.objects.annotate(rating=Avg('reviews__score')).get(id=data['id'])
+        # TODO: Выбрать один из вариантов
+        # title = Title.objects.get(id=data['id'])
+        # rating = sum(title.reviews.values_list('score', flat=True)) / title.reviews.count()
+        genres = title.genre.all()
+        serializer = GenreSerializer(genres, many=True)
+        genres_json = JSONRenderer().render(serializer.data)
+        self.assertEqual(data['name'], title.name)
+        self.assertEqual(data['year'], title.year)
+        self.assertEqual(data['description'], title.description)
+        self.assertJSONEqual(genres_json, data['genre'])
+        self.assertEqual(data['category']['name'], title.category.name)
+        self.assertEqual(data['category']['slug'], title.category.slug)
+        self.assertEqual(data['rating'], title.rating)
