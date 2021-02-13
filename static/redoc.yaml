@@ -1,12 +1,23 @@
 swagger: '2.0'
 info:
   title: Titles API
-  description: Test description
-  termsOfService: 'https://www.google.com/policies/terms/'
-  contact:
-    email: contact@snippets.local
-  license:
-    name: BSD License
+  description: |
+    API requests start with `/api/v1/`
+
+    # Description
+    The project collects user review on titles. The titles are divided into categories: "Books", "Films", etc. Users can leave reviews on titles and rate them. Users can leave comments on reviews.
+
+    # User registration algorithm
+    1. User sends post request with parameter `email` to `/auth/email/`.
+    2. **API** sends a email with a confirmation code (`confirmation_code`) on address  `email` .
+    3. The user sends a post request with `email` и `confirmation_code` to `/auth/token/`, in response he receives a token `token` (JWT).
+    4. The user adds a token to the request header 'Authorization: Bearer `token`'
+
+    # User permissions
+    - **Anonim** — can view descriptions of titles, read reviews and comments.
+    - **Authenticated user** — has the same permissions as **Anonim**,additionally he can publish reviews and rate titles, can comment on other people's reviews; can edit and delete **their** reviews and comments.
+    - **Moderator** — has the same permissions as **Authenticated user**,additionally he can delete and edit **any** reviews and comments.
+    - **Administrator** — full permissions to manage the project and all its contents. Can create and delete categories,titles,genres. Can assign roles to users.
   version: v1
 host: '127.0.0.1:5000'
 schemes:
@@ -21,6 +32,18 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
+    description: |
+      **Administrator** :
+      eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE1NzQwOTI2LCJqdGkiOiI0MzQ1NWYwMGU2ZDM0ZTU2OGEzZ
+      TM0MmM0YzQyZTMyYiIsInVzZXJfaWQiOjF9.TT94bi_LW1YJsasRtdN3naS0azIsL-1fS2h09wEM2mQ<br>
+
+      **Moderator** :
+      eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE1NzQxMDk3LCJqdGkiOiJkOTY4NWY0MzFjZjA0MjJiOTAyMT
+      YzZDQ2ZmFmNTM1ZiIsInVzZXJfaWQiOjJ9._pyoa6U8RUeTwHeY8PQch_5VaHR-JoLQKoedtBfxUgg<br>
+
+      **Authenticated user** :
+      eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE1NzQxMjUyLCJqdGkiOiJjNDVlMDdmOWEzMTQ0ZTgyYTQzND
+      Q3YjJkODk4OTZiYSIsInVzZXJfaWQiOjN9._4_diaQR2ewRuAJQlWnmNnCWxSY53ukYy5qDwQwLtZ4
 security:
   - 'Auth Token eg [Bearer (JWT)]': []
 paths:

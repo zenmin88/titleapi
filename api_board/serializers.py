@@ -31,7 +31,6 @@ class UserSerializer(serializers.ModelSerializer):
 
         if validated_data.get('role', False) and user.role != 'admin' and not user.is_superuser:
             raise exceptions.PermissionDenied(detail={"role": "Only admin can change role"},
-
                                               code=status.HTTP_403_FORBIDDEN)
         return super().update(instance, validated_data)
 
@@ -44,7 +43,9 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['name', 'slug']
 
     def create(self, validated_data):
-        validated_data['slug'] = generate_slug(validated_data, Category)
+        validated_data['slug'] = generate_slug(slug=validated_data.get('slug'),
+                                               name=validated_data.get('name'),
+                                               obj=Category)
         category = Category.objects.create(**validated_data)
         return category
 
@@ -58,7 +59,9 @@ class GenreSerializer(serializers.ModelSerializer):
         ordering = ['name']
 
     def create(self, validated_data):
-        validated_data['slug'] = generate_slug(validated_data, Genre)
+        validated_data['slug'] = generate_slug(slug=validated_data.get('slug'),
+                                               name=validated_data.get('name'),
+                                               obj=Genre)
         genre = Genre.objects.create(**validated_data)
         return genre
 
@@ -66,11 +69,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializerGet(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-
-    # TODO: uncomment
-    # rating = serializers.DecimalField(max_digits=3, decimal_places=2, read_only=True)
-
-    rating = serializers.FloatField(read_only=True)
+    rating = serializers.DecimalField(max_digits=3, decimal_places=2, read_only=True)
 
     class Meta:
         model = Title
@@ -80,12 +79,10 @@ class TitleSerializerGet(serializers.ModelSerializer):
 class TitleSerializerPost(TitleSerializerGet):
     category = serializers.SlugRelatedField(queryset=Category.objects.all(),
                                             slug_field='slug',
-                                            many=False,
-                                            )
+                                            many=False,)
     genre = serializers.SlugRelatedField(queryset=Genre.objects.all(),
                                          slug_field='slug',
-                                         many=True,
-                                         )
+                                         many=True,)
 
     class Meta:
         model = Title

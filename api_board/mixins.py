@@ -58,7 +58,6 @@ class CategoryGenreMixin(mixins.CreateModelMixin,
     """
     Mixin for category and genre
     """
-    # TODO: Разобраться в необходимости слага. Можно сделать его авто генерируемым.
     lookup_field = 'slug'
     filter_backends = [SearchFilter]
     search_fields = ['name']

@@ -1,8 +1,7 @@
-from datetime import datetime
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
+from django.utils.timezone import now
 from django_filters import rest_framework as filters
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import api_view, action
@@ -108,25 +107,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         queryset = Title.objects.all().annotate(rating=Avg('reviews__score')).order_by('id')
         return queryset
 
-    # def get_queryset(self):
-    #     """
-    #     Filter query set wit Q objects
-    #     """
-    #     # TODO: DEL
-    #     queryset = Title.objects.all()
-    #     filter_dict = {
-    #         'name': lambda x: Q(name__icontains=x),
-    #         'year': lambda x: Q(year__exact=x),
-    #         'genre': lambda x: Q(genre__slug__exact=x),
-    #         'category': lambda x: Q(category__slug__exact=x)
-    #     }
-    #
-    #     for key, value in self.request.query_params.items():
-    #         custom_filter = filter_dict.get(key)
-    #         if custom_filter:
-    #             queryset = queryset.filter(custom_filter(value))
-    #     return queryset.annotate(rating=Avg('reviews__score'))
-
 
 class ReviewViewSet(ReviewCommentMixin):
     """
@@ -191,8 +171,9 @@ def get_token(request):
                               code=status.HTTP_400_BAD_REQUEST)
 
     if default_token_generator.check_token(user, confirmation_code):
+
         # Creating a record about logging, after that confirmation code doesn't works
-        user.last_login = datetime.now()
+        user.last_login = now()
         user.save()
         refresh = RefreshToken.for_user(user)
         return Response(data={'token': str(refresh.access_token)},

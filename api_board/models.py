@@ -14,7 +14,6 @@ class User(AbstractUser):
         ('moderator', 'moderator'),
         ('admin', 'admin')
     )
-    # TODO: поправить юзера
     email = models.EmailField(
         _('email address'),
         max_length=255,
@@ -62,7 +61,6 @@ class Category(models.Model):
     """
     Category models
     """
-    # TODO: Или убрать слаг или первичным ключом сделать
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 

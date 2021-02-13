@@ -13,15 +13,15 @@ def generate_username(obj, email):
     return username
 
 
-def generate_slug(data, obj):
+def generate_slug(slug, name, obj):
     """
-    Generate unique slug
-    # TODO: Переписать ужасно
+    Generate unique slug from name
     """
-    if data.get('slug', None) is None:
-        data['slug'] = slugify(data['name'])
+
+    if slug is None:
+        slug = slugify(name)
     else:
-        data['slug'] = slugify(data['slug'])
-    while obj.objects.filter(slug=data['slug']):
-        data['slug'] += str(randint(0, 10))
-    return data['slug']
+        slug = slugify(slug)
+    while obj.objects.filter(slug=slug):
+        slug += str(randint(0, 10))
+    return slug

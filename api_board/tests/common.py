@@ -48,4 +48,3 @@ def create_client_for_user():
     client = APIClient()
     client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(token.access_token))
     return client
-

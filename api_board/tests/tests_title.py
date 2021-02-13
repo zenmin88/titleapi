@@ -1,7 +1,7 @@
+from decimal import Decimal
 from pathlib import Path
 
 from django.core import exceptions
-from django.db.models import Avg
 from django.test import TestCase, override_settings
 from rest_framework import status
 from rest_framework.renderers import JSONRenderer
@@ -171,10 +171,11 @@ class TestTitle(TestCase):
             Title.objects.get(id=self.pk)
 
     def check_response_data(self, data):
-        title = Title.objects.annotate(rating=Avg('reviews__score')).get(id=data['id'])
-        # TODO: Выбрать один из вариантов
-        # title = Title.objects.get(id=data['id'])
-        # rating = sum(title.reviews.values_list('score', flat=True)) / title.reviews.count()
+        title = Title.objects.get(id=data['id'])
+        total_score = sum(title.reviews.values_list('score', flat=True))
+        count = title.reviews.count()
+
+        rating = Decimal(total_score / count)
         genres = title.genre.all()
         serializer = GenreSerializer(genres, many=True)
         genres_json = JSONRenderer().render(serializer.data)
@@ -184,4 +185,4 @@ class TestTitle(TestCase):
         self.assertJSONEqual(genres_json, data['genre'])
         self.assertEqual(data['category']['name'], title.category.name)
         self.assertEqual(data['category']['slug'], title.category.slug)
-        self.assertEqual(data['rating'], title.rating)
+        self.assertEqual(data['rating'], str(rating.quantize(Decimal("1.00"))))
