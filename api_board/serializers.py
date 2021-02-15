@@ -24,9 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'username', 'bio', 'email', 'role']
 
     def update(self, instance, validated_data):
-        """
-        Checks that only the admin can change the role
-        """
+        """Checks that only the admin can change the role."""
         user = self.context['request'].user
 
         if validated_data.get('role', False) and user.role != 'admin' and not user.is_superuser:
@@ -102,9 +100,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ['id', 'author', 'title', 'text', 'score', 'pub_date']
 
     def validate(self, attrs):
-        """
-        Validate every author can create only one review
-        """
+        """Validate every author can create only one review."""
         author = self.context['request'].user
         title = self.context['view'].kwargs.get('title_id')
         if Review.objects.filter(author=author, title=title) and self.context['request'].method == 'POST':

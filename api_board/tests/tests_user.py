@@ -13,9 +13,7 @@ from api_board.tests.common import create_clients_for_users
 @override_settings(FIXTURE_DIRS=[Path(__file__).resolve().parent/'fixtures', ])
 class TestUser(TestCase):
     fixtures = ['users']
-    username = User.objects.last().username
     list_url = reverse('user-list')
-    detail_url = reverse('user-detail', kwargs={'username': username})
     detail_url_invalid = reverse('user-detail', kwargs={'username': 'Joe'})
     current_user_url = reverse('user-me')
     data = {
@@ -30,6 +28,8 @@ class TestUser(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.username = User.objects.last().username
+        cls.detail_url = reverse('user-detail', kwargs={'username': cls.username})
         cls.user_client, cls.moderator_client, cls.admin_client = create_clients_for_users()
         cls.not_auth_client = APIClient()
         super().setUpTestData()

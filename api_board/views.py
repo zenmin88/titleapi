@@ -22,11 +22,6 @@ User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint(user/) that allow only admin get,post,patch and delete data.
-    API endpoint(me/) that allow only request.user get and post data.
-    User cannot change role attribute.
-    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminRole]
@@ -38,10 +33,6 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False,  permission_classes=[permissions.IsAuthenticated],
             methods=['GET', 'PATCH'], url_path='me', url_name='me')
     def current_user(self, request):
-        """
-        Get current user info.
-        Update current user info.
-        """
         serializer_class = self.get_serializer_class()
 
         if request.method == 'GET':
@@ -59,29 +50,16 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(CategoryGenreMixin):
-    """
-    API endpoint that allows all users to be viewed,
-    only admin can edit and delete.
-    """
-
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(CategoryGenreMixin):
-    """
-    API endpoint that allows all users to be viewed,
-    only admin can edit and delete.
-    """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    """
-    Api endpoint all users can view it,
-    but only admin can create, update and delete it.
-    """
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = TitleFilter
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -101,18 +79,12 @@ class TitleViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        """
-        Added annotation field with average rating
-        """
+        """Added annotation field with average rating."""
         queryset = Title.objects.all().annotate(rating=Avg('reviews__score')).order_by('id')
         return queryset
 
 
 class ReviewViewSet(ReviewCommentMixin):
-    """
-    Api endpoint where users can publishing their review and view it.
-    Admin, moderator and author of review can update and destroy it.
-    """
     serializer_class = ReviewSerializer
     model = Review
     related_model = Title
@@ -128,10 +100,6 @@ class CommentViewSet(ReviewCommentMixin):
 
 @api_view(['POST'])
 def get_confirmation_code(request):
-    """
-    Register new user and sent activation code.
-    For existing user sent activation code.
-    """
     email = request.data.get('email')
     try:
         user = User.objects.get(email=email)
@@ -159,9 +127,6 @@ def get_confirmation_code(request):
 
 @api_view(['POST'])
 def get_token(request):
-    """
-    Get token for user
-    """
     email = request.data.get('email')
     confirmation_code = request.data.get('confirmation_code')
     try:

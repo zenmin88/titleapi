@@ -17,11 +17,11 @@ class TestCategory(TestCase):
     data = {"name": "Western",
             "slug": "western"}
 
-    slug = Category.objects.first().slug
-    detail_url = reverse('category-detail', kwargs={'slug': slug})
-
     @classmethod
     def setUpTestData(cls):
+
+        cls.slug = Category.objects.first().slug
+        cls.detail_url = reverse('category-detail', kwargs={'slug': cls.slug})
         cls.user_client, cls.moderator_client, cls.admin_client = create_clients_for_users()
         cls.not_auth_client = APIClient()
 

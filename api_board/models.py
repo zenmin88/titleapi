@@ -6,14 +6,12 @@ from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
-    """
-    Custom user model
-    """
     ROLE_CHOICES = (
         ('user', 'user'),
         ('moderator', 'moderator'),
         ('admin', 'admin')
     )
+
     email = models.EmailField(
         _('email address'),
         max_length=255,
@@ -22,7 +20,7 @@ class User(AbstractUser):
     bio = models.CharField(max_length=256, blank=True)
     role = models.CharField(max_length=10,
                             choices=ROLE_CHOICES,
-                            default=ROLE_CHOICES[0],
+                            default=ROLE_CHOICES[0][0],
                             help_text="Administrator, moderator or user. By default 'user'")
 
     EMAIL_FIELD = 'email'
@@ -38,9 +36,6 @@ class User(AbstractUser):
 
 
 class Comment(models.Model):
-    """
-    Comment model
-    """
     text = models.CharField(max_length=655)
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
@@ -58,9 +53,6 @@ class Comment(models.Model):
 
 
 class Category(models.Model):
-    """
-    Category models
-    """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
@@ -73,9 +65,6 @@ class Category(models.Model):
 
 
 class Title(models.Model):
-    """
-    Title models
-    """
     name = models.CharField(max_length=50)
     year = models.PositiveIntegerField()
     description = models.CharField(max_length=255, blank=True)
@@ -92,9 +81,6 @@ class Title(models.Model):
 
 
 class Genre(models.Model):
-    """
-    Genre models
-    """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
@@ -106,9 +92,6 @@ class Genre(models.Model):
 
 
 class Review(models.Model):
-    """
-    Review models
-    """
     text = models.TextField()
     score = models.SmallIntegerField(validators=[MaxValueValidator(10),
                                                  MinValueValidator(1)])

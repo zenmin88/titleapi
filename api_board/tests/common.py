@@ -5,12 +5,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 def create_clients_for_users():
-    """
-    Get user with role(user, admin, moderator) from fixtures,
-    generate token for it and create authenticate client
-    :return: Client
-    """
+    """Return clients for users with roles: user, moderator, administrator.
 
+    :return: (user_client, moderator_client, admin_client), Authorized client for user with role admin,
+    Authorized client for user with role moderator, Authorized client for user with role user
+    """
     user = get_user_model().objects.get(username='user', role='user')
     moderator = get_user_model().objects.get(username='moderator', role='moderator')
     admin = get_user_model().objects.get(username='admin', role='admin')
@@ -30,9 +29,7 @@ def create_clients_for_users():
 
 
 def get_user_from_client(client):
-    """
-    Return user from auth client
-    """
+    """Return object of user from authorized client."""
     token_header = client._credentials['HTTP_AUTHORIZATION']
     token_str = token_header.split(' ')[-1]
     auth = JWTTokenUserAuthentication()
@@ -42,7 +39,7 @@ def get_user_from_client(client):
 
 
 def create_client_for_user():
-    """Create user with role=user and client for it"""
+    """Create user with role=user, return client for it."""
     other_user = get_user_model().objects.create(username='other_user', email='mail@mail.com')
     token = RefreshToken.for_user(other_user)
     client = APIClient()

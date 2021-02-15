@@ -2,9 +2,8 @@ from rest_framework.permissions import BasePermission
 
 
 class IsAdminRole(BasePermission):
-    """
-    Allows access admin users and user with role admin.
-    """
+    """Allows access admin users and user with role admin."""
+
     def has_permission(self, request, view):
 
         if not request.user.is_authenticated:
@@ -13,9 +12,8 @@ class IsAdminRole(BasePermission):
 
 
 class IsModeratorRole(BasePermission):
-    """
-    Allows access users with role='moderator'.
-    """
+    """Allows access users with role='moderator'."""
+
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
@@ -23,10 +21,7 @@ class IsModeratorRole(BasePermission):
 
 
 class IsAdminOrModeratorOrAuthor(BasePermission):
-    """
-    Permission on object level.Allows access
-    admin, moderator and author of object.
-    """
+    """Permission on object level.Allows access admin, moderator and author of object."""
 
     def has_object_permission(self, request, view, obj):
         if not request.user.is_authenticated:

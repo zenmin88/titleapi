@@ -7,20 +7,15 @@ from api_board.permissions import IsAdminOrModeratorOrAuthor, IsAdminRole
 
 
 class ReviewCommentMixin(viewsets.ModelViewSet):
-    """
-    Mixin with permissions where users can publishing their review and view it.
-    Admin, moderator and author of review can update and destroy it.
-    """
+    """ Mixin with permissions where users can publishing their review and view it."""
     serializer_class = None
     model = None
     related_model = None
-    related_field = None
+    related_field = str()
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_permissions(self):
-        """
-        Set permission for various methods for various role
-        """
+        """Set permission for various methods for various role."""
         if self.action in ['list', 'retrieve']:
             permission_classes = [AllowAny]
         elif self.action == 'create':
@@ -55,9 +50,7 @@ class CategoryGenreMixin(mixins.CreateModelMixin,
                          mixins.ListModelMixin,
                          mixins.DestroyModelMixin,
                          viewsets.GenericViewSet):
-    """
-    Mixin for category and genre
-    """
+    """Mixin for category and genre."""
     lookup_field = 'slug'
     filter_backends = [SearchFilter]
     search_fields = ['name']
