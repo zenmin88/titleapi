@@ -99,7 +99,7 @@ class CommentViewSet(ReviewCommentMixin):
 
 
 @api_view(['POST'])
-def get_confirmation_code(request):
+def get_confirmation_code(request, *args, **kwargs):
     email = request.data.get('email')
     try:
         user = User.objects.get(email=email)
@@ -126,7 +126,7 @@ def get_confirmation_code(request):
 
 
 @api_view(['POST'])
-def get_token(request):
+def get_token(request, *args, **kwargs):
     email = request.data.get('email')
     confirmation_code = request.data.get('confirmation_code')
     try:

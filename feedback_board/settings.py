@@ -10,7 +10,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_KEY", 'test key')
+SECRET_KEY = os.getenv("DJANGO_KEY", "lr89njj_l$q2$ijhbg54!!^%$#bgu7-n@i(jj8e25bh-ea0")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -147,5 +147,5 @@ REST_FRAMEWORK = {
 }
 # Simple JWT Token settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=90),
 }

@@ -34,16 +34,13 @@ securityDefinitions:
     in: header
     description: |
       **Administrator** :
-      eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE1NzQwOTI2LCJqdGkiOiI0MzQ1NWYwMGU2ZDM0ZTU2OGEzZ
-      TM0MmM0YzQyZTMyYiIsInVzZXJfaWQiOjF9.TT94bi_LW1YJsasRtdN3naS0azIsL-1fS2h09wEM2mQ<br>
+      eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIxMTYwOTk5LCJqdGkiOiIwZWY<wbr>xNGUwYTc2NWE0ZTQwODhkMjI2ZWU5M2YyMmJkNiIsInVzZXJfaWQiOjF9.LVf0xkbCsxwrM-QRrAr6q7q50lpv4eV2_C3w0FvWtI4
 
       **Moderator** :
-      eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE1NzQxMDk3LCJqdGkiOiJkOTY4NWY0MzFjZjA0MjJiOTAyMT
-      YzZDQ2ZmFmNTM1ZiIsInVzZXJfaWQiOjJ9._pyoa6U8RUeTwHeY8PQch_5VaHR-JoLQKoedtBfxUgg<br>
+      eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIxMTYxMTU3LCJqdGkiOiJiYjJ<wbr>kM2FjYmJlODE0ZWEwODZjZDE5NjYyZTJkYjFmOSIsInVzZXJfaWQiOjJ9.sQnlIpM-cXw8wFXEIbkXbGdk9yP7ck2l8J2j-K2ZFrU
 
       **Authenticated user** :
-      eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE1NzQxMjUyLCJqdGkiOiJjNDVlMDdmOWEzMTQ0ZTgyYTQzND
-      Q3YjJkODk4OTZiYSIsInVzZXJfaWQiOjN9._4_diaQR2ewRuAJQlWnmNnCWxSY53ukYy5qDwQwLtZ4
+      eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIxMTYxMjM4LCJqdGkiOiI5NzN<wbr>kZWUwMTBlNDg0YzU0YTY3OTZhNjE0NGMzMmRiZiIsInVzZXJfaWQiOjN9.Poljg7j1MgjbgAeRy9SHWjzDnjzN9JPy5LyfrRYB3eo
 security:
   - 'Auth Token eg [Bearer (JWT)]': []
 paths:
