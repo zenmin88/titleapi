@@ -2,7 +2,7 @@
 
 The api collects user review on titles. The titles are divided into categories: "Books", "Films", etc. Users can leave reviews on titles and rate them. Users can leave comments on reviews. 
 
-# Getting started
+# Getting started with virtualenv
 
 Please follow the instructions below.
 
@@ -18,4 +18,17 @@ python manage.py migrate
 python manage.py loaddata api_board
 python manage.py runserver
 ```
-You can then visit [localhost:8000/redoc](http://localhost:8000/redoc) to verify that it's running on your machine and read full API documentation for it.
+
+# Getting started with docker
+
+Please follow the instructions below.
+
+Run manually:
+```bash
+git clone REPO
+cd REPO
+docker build -t api-image .
+docker run --rm --name api-container --network host api-image
+```
+
+You can then visit [localhost:5000](http://localhost:5000) to verify that it's running on your machine and read full API documentation for it.
