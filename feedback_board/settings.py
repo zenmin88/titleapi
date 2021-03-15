@@ -15,7 +15,7 @@ SECRET_KEY = os.getenv("DJANGO_KEY", "lr89njj_l$q2$ijhbg54!!^%$#bgu7-n@i(jj8e25b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1'git]
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
